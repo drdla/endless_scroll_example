@@ -48,78 +48,66 @@
 
 (function($){
 
-  $.fn.endlessScroll = function(options){
+  $.fn.endlessScroll = function(options) {
 
     var defaults = {
-      bottomPixels: 50,
-      fireOnce: true,
-      fireDelay: 150,
-      loader: "<br />Loading...<br />",
-      data: "",
-      insertAfter: "div:last",
-      resetCounter: function(){ return false; },
-      callback: function(){ return true; },
-      ceaseFire: function(){ return false; }
+      bottomPixels  : 50,
+      fireOnce			: true,
+      fireDelay			: 150,
+      loader				: '<br>Loading...<br>',
+      data					: '',
+      insertAfter		: 'div:last',
+      resetCounter	: function() {return false;},
+      callback			: function() {return true;},
+      ceaseFire			: function() {return false;}
     };
 
-    var options = $.extend(defaults, options);
-
-    var firing       = true;
-    var fired        = false;
-    var fireSequence = 0;
+    var options       = $.extend(defaults, options),
+        firing        = true,
+        fired         = false,
+        fireSequence  = 0;
 
     if (options.ceaseFire.apply(this) === true)
-    {
       firing = false;
-    }
 
-    if (firing === true)
-    {
+    if (firing === true) {
       $(this).scroll(function() {
         if (this == document) {
           var is_scrollable = $(document).height() - $(window).height() <= $(window).scrollTop() + options.bottomPixels;
         } else {
           // calculates the actual height of the scrolling container
-          var inner_wrap = $(".endless_scroll_inner_wrap", this);
-          if (inner_wrap.length == 0) {
-            $(this).wrapInner("<div class=\"endless_scroll_inner_wrap\" />");
-          }
-          var is_scrollable = inner_wrap.length > 0 &&
-            (inner_wrap.height() - $(this).height() <= $(this).scrollTop() + options.bottomPixels);
+          var inner_wrap = $('.endless_scroll_inner_wrap', this);
+          if (inner_wrap.length == 0)
+            $(this).wrapInner('<div class="endless_scroll_inner_wrap" />');
+          var is_scrollable = inner_wrap.length > 0 && (inner_wrap.height() - $(this).height() <= $(this).scrollTop() + options.bottomPixels);
         }
 
-        if ((options.ceaseFire.apply(this) === false) && is_scrollable && (options.fireOnce == false || (options.fireOnce == true && fired != true)))
-        {
-          if (options.resetCounter.apply(this) === true) fireSequence = 0;
-
+        if ((options.ceaseFire.apply(this) === false) && is_scrollable && (options.fireOnce == false || (options.fireOnce == true && fired != true))) {
+          if (options.resetCounter.apply(this) === true)
+            fireSequence = 0;
           fired = true;
           fireSequence++;
 
-          $(options.insertAfter).after("<div id=\"endless_scroll_loader\">" + options.loader + "</div>");
+          $(options.insertAfter).after('<div id="endless_scroll_loader">' + options.loader + '</div>');
 
           data = typeof options.data == 'function' ? options.data.apply(this) : options.data;
-          if (data !== false)
-          {
-            $("div#endless_scroll_loader").remove();
-            $(options.insertAfter).after("<div id=\"endless_scroll_data\">" + data + "</div>");
-            $("div#endless_scroll_data").hide().fadeIn();
-            $("div#endless_scroll_data").removeAttr("id");
+          if (data !== false) {
+            $('#endless_scroll_loader').remove();
+            $(options.insertAfter).after('<div id="endless_scroll_data">' + data + '</div>');
+            $('#endless_scroll_data').hide().fadeIn(400, function() {$(this).removeAttr('id');});
 
             var args = new Array();
             args[0] = fireSequence;
             options.callback.apply(this, args);
 
-            if (options.fireDelay !== false || options.fireDelay !== 0)
-            {
+            if (options.fireDelay !== false || options.fireDelay !== 0) {
               // slight delay for preventing event firing twice
-              $("body").after("<div id=\"endless_scroll_marker\"></div>");
-              $("div#endless_scroll_marker").fadeTo(options.fireDelay, 1, function(){
+              $('BODY').after('<div id="endless_scroll_marker"></div>');
+              $('#endless_scroll_marker').fadeTo(options.fireDelay, 1, function() {
                 $(this).remove();
                 fired = false;
               });
-            }
-            else
-            {
+            } else {
               fired = false;
             }
           }
